@@ -178,47 +178,31 @@ The deployment script:
 * verifies successful deployment
 
 ---
-# 📸 Screenshots
+## 📸 Screenshots
 
-## CI/CD Architecture
+### Application Home Page
 
-![Architecture](assets/architecture.png)
+![Application Home Page](screenshots/homepage.png)
 
----
+### Health Endpoint
 
-## Home Page
+![Health Endpoint](screenshots/health%20endpoint.png)
 
-![Home](screenshots/01-home-page.png)
+### Successful GitHub Actions Workflow
 
----
+![Successful Workflow](screenshots/workflow.png)
 
-## Health Endpoint
+### Build Application Job
 
-![Health](screenshots/02-health-endpoint.png)
+![Build Job](screenshots/buildjob.png)
 
----
+### Deploy to Staging Job
 
-## GitHub Actions Workflow
+![Deploy Job](screenshots/deployjob.png)
 
-![Workflow](screenshots/03-workflow-success.png)
+### Workflow Artifacts
 
----
-
-## Build Application
-
-![Build](screenshots/04-build-job.png)
-
----
-
-## Deploy to Staging
-
-![Deployment](screenshots/05-deploy-job.png)
-
----
-
-## Workflow Artifacts
-
-![Artifacts](screenshots/-artifacts.png)
+![Workflow Artifacts](screenshots/artifacts.png)
 ## Local Setup
 
 Clone the repository:
