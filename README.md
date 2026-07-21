@@ -181,28 +181,22 @@ The deployment script:
 ## 📸 Screenshots
 
 ### Application Home Page
-
-![Application Home Page](screenshots/homepage.png)
+![Application Home Page](Screenshot/homepage.png)
 
 ### Health Endpoint
-
-![Health Endpoint](screenshots/health%20endpoint.png)
+![Health Endpoint](Screenshot/health%20endpoint.png)
 
 ### Successful GitHub Actions Workflow
-
-![Successful Workflow](screenshots/workflow.png)
+![Workflow](Screenshot/workflow.png)
 
 ### Build Application Job
-
-![Build Job](screenshots/buildjob.png)
+![Build Job](Screenshot/buildjob.png)
 
 ### Deploy to Staging Job
-
-![Deploy Job](screenshots/deployjob.png)
+![Deploy Job](Screenshot/deployjob.png)
 
 ### Workflow Artifacts
-
-![Workflow Artifacts](screenshots/artifacts.png)
+![Artifacts](Screenshot/artifacts.png)
 ## Local Setup
 
 Clone the repository:
