@@ -176,15 +176,13 @@ The deployment script:
 * copies the build to a staging directory
 * creates deployment metadata
 * verifies successful deployment
-
- # 🏗️ Architecture
+  
+# 🏗️ Architecture
 
 The following diagram illustrates the complete Continuous Integration and Continuous Deployment (CI/CD) workflow implemented using **GitHub Actions**. The pipeline automates code validation, testing, security checks, application build, artifact management, and deployment to a simulated staging environment.
 
-<p align="center">
-  <img src="assets/architecture.png" alt="CI/CD Pipeline Architecture" width="100%">
-</p>
 
+![CI/CD Pipeline Architecture](assets/architecture.png)
 ---
 ## 📸 Screenshots
 
