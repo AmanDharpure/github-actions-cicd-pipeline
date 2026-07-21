@@ -218,7 +218,7 @@ The deployment script:
 
 ## Workflow Artifacts
 
-![Artifacts](screenshots/06-artifacts.png)
+![Artifacts](screenshots/-artifacts.png)
 ## Local Setup
 
 Clone the repository:
