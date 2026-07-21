@@ -1,0 +1,195 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+  pull_request:
+    branches:
+      - main
+      - develop
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: staging-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+  NODE_ENV: test
+
+jobs:
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+  automated-tests:
+    name: Automated Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Upload test coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-coverage-${{ github.run_number }}
+          path: coverage/
+          retention-days: 7
+          if-no-files-found: error
+
+  security-check:
+    name: Dependency Security
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run security audit
+        run: npm audit --audit-level=high
+
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs:
+      - code-quality
+      - automated-tests
+      - security-check
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+
+      - name: Verify build output
+        run: |
+          test -f dist/src/app.js
+          test -f dist/src/server.js
+          test -f dist/package.json
+          test -f dist/package-lock.json
+          test -f dist/build-info.json
+
+      - name: Upload application artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: application-build-${{ github.sha }}
+          path: dist/
+          retention-days: 14
+          if-no-files-found: error
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs:
+      - build
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    environment:
+      name: staging
+
+    env:
+      DEPLOYMENT_TOKEN: ${{ secrets.STAGING_DEPLOYMENT_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download application artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: application-build-${{ github.sha }}
+          path: dist
+
+      - name: Verify deployment secret
+        run: |
+          if [ -z "$DEPLOYMENT_TOKEN" ]; then
+            echo "STAGING_DEPLOYMENT_TOKEN is not configured."
+            exit 1
+          fi
+
+          echo "Deployment secret loaded successfully."
+
+      - name: Make deployment script executable
+        run: chmod +x scripts/deploy-staging.sh
+
+      - name: Deploy to staging
+        run: ./scripts/deploy-staging.sh
+
+      - name: Upload staging deployment evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-deployment-${{ github.run_number }}
+          path: staging-deployment/
+          retention-days: 14
+          if-no-files-found: error
+
+      - name: Create deployment summary
+        run: |
+          echo "## Staging Deployment Successful" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Environment: staging" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Branch: $GITHUB_REF_NAME" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Commit: $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Run number: $GITHUB_RUN_NUMBER" >> "$GITHUB_STEP_SUMMARY"
